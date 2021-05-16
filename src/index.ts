@@ -154,6 +154,12 @@ async function storeSignature() {
 
 }
 
+async function isOwnerOfDomain(_nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+	let isArtist = await nftContract.artist()
+	return isArtist == wallet.address
+}
+
 // --------- tests ---------
 
 async function main() {
@@ -169,6 +175,8 @@ async function main() {
 	// console.log('TokenId 1 is signed: ' + signed)
 	// let test = await isSignableNFT('0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
 	// console.log('this nft is signable: ' + test)
+	let isArtist = await isOwnerOfDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
+	console.log(isArtist)
 }
 
 main()
