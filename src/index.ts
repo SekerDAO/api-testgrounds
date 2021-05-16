@@ -10,7 +10,7 @@ let provider = new ethers.providers.InfuraProvider("rinkeby", "292c366623594a44a
 
 let wallet = new ethers.Wallet('0x011f5d8c37def36f4bd85f8b1a8e82bf104abdaac8c0710ab70e5f86dba180cc', provider)
 
-let twAddress = '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D'
+let twAddress = '0x70Fbd853bD5407043abA9885d8901554daa01c8d'
 let twContract = new ethers.Contract(twAddress, TWartToken.abi, provider)
 let twContractWithSigner = twContract.connect(wallet)
 
@@ -67,12 +67,19 @@ async function deployCustomDomain(name, symbol) {
 
 // --------- create nfts ---------
 
-async function createNFTCustomDomain(name, symbol, uri, numberOfEditions) {
+async function createNFTCustomDomain(_nftAddress, _uri, _numberOfEditions) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+	let nftContractWithSigner = nftContract.connect(wallet)
+	let _tx = await nftContractWithSigner.mintEdition(_uri, _numberOfEditions)
 
+    provider.once(_tx.hash, (receipt) => {
+        console.log('Transaction Minded: ' + receipt.transactionHash);
+        console.log(receipt);
+    })
 }
 
-async function createWithNFTTWDomain(numberOfEditions) {
-	let _tx = await twContractWithSigner.mintEdition(numberOfEditions)
+async function createWithNFTTWDomain(uri, numberOfEditions) {
+	let _tx = await twContractWithSigner.mintEdition(uri, numberOfEditions)
 
     provider.once(_tx.hash, (receipt) => {
         console.log('Transaction Minded: ' + receipt.transactionHash);
@@ -145,15 +152,16 @@ async function checkOwnership(_walletAddress, _nftAddress, _nftId) {
 async function main() {
 	getBalance()
 	//deployTWDomain()
-	//deployCustomDomain()
-	//createWithNFTTWDomain(10)
-	getMetadata('0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
-	let isOwner = await checkOwnership('0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
-	console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
-	let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
-	console.log('TokenId 1 is signed: ' + signed)
-	let test = await isSignableNFT('0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
-	console.log('this nft is signable: ' + test)
+	//deployCustomDomain('Nathan', 'NTG')
+	//createNFTCustomDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
+	//createWithNFTTWDomain('https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
+	getMetadata('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
+	// let isOwner = await checkOwnership('0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+	// console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
+	// let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
+	// console.log('TokenId 1 is signed: ' + signed)
+	// let test = await isSignableNFT('0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
+	// console.log('this nft is signable: ' + test)
 }
 
 main()
