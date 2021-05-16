@@ -144,6 +144,13 @@ async function checkOwnership(_walletAddress, _nftAddress, _nftId) {
 	let nftContractWithSigner = nftContract.connect(wallet)
 	let owner = await nftContractWithSigner.ownerOf(_nftId)
 	return owner === _walletAddress
+}
+
+async function signData() {
+
+}
+
+async function storeSignature() {
 
 }
 
