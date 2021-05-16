@@ -55,8 +55,7 @@ async function deployTWDomain() {
 
 async function getMetadata(_nftAddress, _nftId) {
 	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
-	let nftContractWithSigner = nftContract.connect(wallet)
-	let uri = await nftContractWithSigner.tokenURI(_nftId)
+	let uri = await nftContract.tokenURI(_nftId)
 	console.log(uri)
 }
 
@@ -72,12 +71,48 @@ async function createNFTTW() {
 
 }
 
-async function isSigned() {
+async function isSigned(_nftId, _nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
 
+	try {
+		let signature = await nftContract.getSignature(_nftId)
+		//console.log(signature)
+		return true
+	} catch(err) {
+		//console.log(err.reason)
+		return false
+	}
 }
 
-async function isSignable() {
+async function getSignature(_nftId) {
+	try {
+		let signature = await twContractWithSigner.getSignature(_nftId)
+		//console.log(signature)
+		return signature
+	} catch(err) {
+		//console.log(err.reason)
+		return Error('signature does not exist')
+	}
+}
 
+async function isSignableNFT(_nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+
+	try {
+		let signature = await nftContract.getSignature(1)
+		return true
+	} catch(err) {
+		if(err.reason) {
+			if(err.reason === 'cannot estimate gas; transaction may fail or may require manual gas limit') {
+				return false
+			}
+			if(err.reason === 'ERC721Extensions: no signature exists for this Id') {
+				return true
+			}
+		} else {
+			return false
+		}
+	}
 }
 
 async function checkOwnership(_walletAddress, _nftAddress, _nftId) {
@@ -89,9 +124,17 @@ async function checkOwnership(_walletAddress, _nftAddress, _nftId) {
 
 }
 
-getBalance()
-//deployTWDomain()
-//createWithNFTTWDomain(10)
-getMetadata('0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
-checkOwnership('0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+async function main() {
+	getBalance()
+	//deployTWDomain()
+	//createWithNFTTWDomain(10)
+	getMetadata('0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+	checkOwnership('0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+	let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
+	console.log('TokenId 1 is signed: ' + signed)
+	let test = await isSignableNFT('0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
+	console.log('this nft is signable: ' + test)
+}
+
+main()
 
