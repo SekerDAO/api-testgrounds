@@ -19,6 +19,11 @@ async function getBalance() {
 	console.log(balance.toString())
 }
 
+async function getAddress() {
+	let address = await wallet.address;
+	console.log(address)
+}
+
 // --------- deploy nfts ---------
 
 async function deployTWDomain() {
@@ -164,6 +169,7 @@ async function isOwnerOfDomain(_nftAddress) {
 
 async function main() {
 	getBalance()
+	getAddress()
 	//deployTWDomain()
 	//deployCustomDomain('Nathan', 'NTG')
 	//createNFTCustomDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
