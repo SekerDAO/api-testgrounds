@@ -144,8 +144,8 @@ async function isSignableNFT(_nftAddress) {
 	}
 }
 
-async function checkOwnership(_walletAddress, _nftAddress, _nftId) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+async function checkOwnership(_provider, _walletAddress, _nftAddress, _nftId) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 	let nftContractWithSigner = nftContract.connect(wallet)
 	let owner = await nftContractWithSigner.ownerOf(_nftId)
 	return owner === _walletAddress
@@ -175,7 +175,7 @@ async function main() {
 	//createNFTCustomDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
 	//createWithNFTTWDomain('https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
 	getMetadata('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
-	// let isOwner = await checkOwnership('0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+	let isOwner = await checkOwnership(provider, '0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
 	// console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
 	// let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
 	// console.log('TokenId 1 is signed: ' + signed)
