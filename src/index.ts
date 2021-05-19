@@ -176,15 +176,6 @@ async function postIPFS(data) {
 	} catch (err) {
 		console.log(err)
 	}
-	// const res = await axios.post('https://ipfs.infura.io:5001/api/v0/add?pin=false', { file: {hello: 'world'} }, {
-	// 	headers: {
-	// 		// 'application/json' is the modern content-type for JSON, but some
-	// 		// older servers may use 'text/json'.
-	// 		// See: http://bit.ly/text-json
-	// 		'Content-Type': 'multipart/form-data'
-	// 	}
-	// });
-	//console.log(res)
 }
 
 // --------- tests ---------
@@ -205,7 +196,7 @@ async function main() {
 	// console.log('this nft is signable: ' + test)
 	let isArtist = await isOwnerOfDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
 	console.log(isArtist)
-	postIPFS({ data:'test' })
+	//postIPFS({ data:'test' })
 }
 
 main()
