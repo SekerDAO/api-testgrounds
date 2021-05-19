@@ -171,7 +171,7 @@ async function isOwnerOfDomain(_nftAddress) {
 
 async function postIPFS(data) {
 	try {
-		let res = await client.add(urlSource('https://ipfs.io/images/ipfs-logo.svg'))
+		let res = await client.add(JSON.stringify(data))
 		console.log(res)
 	} catch (err) {
 		console.log(err)
