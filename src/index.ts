@@ -7,6 +7,8 @@ const client = create('https://ipfs.infura.io:5001')
 // ERC721 with art token extension
 const artToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/ArtToken.json')));
 const TWartToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/TWdomainToken.json')));
+const houseTokenDAO = JSON.parse(fs.readFileSync(path.join(__dirname + '/HouseTokenDAO.json')));
+const govToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/GovToken.json')));
 
 let provider = new ethers.providers.InfuraProvider("rinkeby", "292c366623594a44a3d5e76a68d1d9d2");
 
@@ -24,6 +26,58 @@ async function getBalance() {
 async function getAddress() {
 	let address = await wallet.address;
 	console.log(address)
+}
+
+async function deployERC20(totalSupply, name, symbol) {
+    // Create an instance of a Contract Factory
+    let token = new ethers.ContractFactory(govToken.abi, govToken.bytecode, wallet);
+
+    // Notice we pass in "Hello World" as the parameter to the constructor
+    let contract = await dao.deploy(name, symbol, totalSupply);
+
+    // The address the Contract WILL have once mined
+    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
+    console.log(contract.address);
+    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
+
+    // The transaction that was sent to the network to deploy the Contract
+    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
+    console.log(contract.deployTransaction.hash);
+    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
+
+    // The contract is NOT deployed yet; we must wait until it is mined
+    await contract.deployed()
+    console.log('transaction mined')
+}
+
+// --------- deploy DAOS ---------
+		address[] memory heads,
+		address _governanceToken,
+		uint _entryAmount,
+		uint _proposalTime,
+		uint _totalGovernanceSupply,
+		uint _threshold
+
+async function deployHouseGovDAO(heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
+    // Create an instance of a Contract Factory
+    let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, wallet);
+
+    // Notice we pass in "Hello World" as the parameter to the constructor
+    let contract = await dao.deploy("Walk", "TWD");
+
+    // The address the Contract WILL have once mined
+    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
+    console.log(contract.address);
+    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
+
+    // The transaction that was sent to the network to deploy the Contract
+    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
+    console.log(contract.deployTransaction.hash);
+    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
+
+    // The contract is NOT deployed yet; we must wait until it is mined
+    await contract.deployed()
+    console.log('transaction mined')
 }
 
 // --------- deploy nfts ---------
@@ -196,7 +250,19 @@ async function main() {
 	// console.log('this nft is signable: ' + test)
 	let isArtist = await isOwnerOfDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
 	console.log(isArtist)
-	//postIPFS({ data:'test' })
+
+	let metadata = {
+	  "description": "A decription of the specific nft", 
+	  "external_url": "https://tokenwalk.com/nftaddress/nftid", 
+	  "image": "https://gateway.ipfs.io/ipfs/Qm...", 
+	  "name": "Name of art",
+	  "attributes": [
+	  	"original" : "false",
+	  	"edition-number" : "1",
+	  	"royalty" : "10%"
+	  ], 
+	}
+	postIPFS(metadata)
 }
 
 main()
