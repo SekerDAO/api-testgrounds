@@ -29,41 +29,40 @@ async function getAddress() {
 }
 
 async function deployERC20(totalSupply, name, symbol) {
-    // Create an instance of a Contract Factory
     let token = new ethers.ContractFactory(govToken.abi, govToken.bytecode, wallet);
-
-    // Notice we pass in "Hello World" as the parameter to the constructor
-    let contract = await dao.deploy(name, symbol, totalSupply);
-
-    // The address the Contract WILL have once mined
-    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
+    let contract = await token.deploy(name, symbol, totalSupply);
     console.log(contract.address);
-    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
-
-    // The transaction that was sent to the network to deploy the Contract
-    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
     console.log(contract.deployTransaction.hash);
-    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
-
-    // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
     console.log('transaction mined')
 }
 
+async function approve(address, amount, dao) {
+	let erc20Contract = new ethers.Contract(address, govToken.abi, provider)
+	let erc20ContractWithSigner = erc20Contract.connect(wallet)
+
+	let _tx = await erc20ContractWithSigner.approve(dao, amount)
+
+    provider.once(_tx.hash, (receipt) => {
+        console.log('Transaction Minded: ' + receipt.transactionHash);
+        console.log(receipt);
+    })
+}
+
 // --------- deploy DAOS ---------
-		address[] memory heads,
-		address _governanceToken,
-		uint _entryAmount,
-		uint _proposalTime,
-		uint _totalGovernanceSupply,
-		uint _threshold
+// address[] memory heads,
+// address _governanceToken,
+// uint _entryAmount,
+// uint _proposalTime,
+// uint _totalGovernanceSupply,
+// uint _threshold
 
 async function deployHouseGovDAO(heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
     // Create an instance of a Contract Factory
     let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, wallet);
 
     // Notice we pass in "Hello World" as the parameter to the constructor
-    let contract = await dao.deploy("Walk", "TWD");
+    let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
 
     // The address the Contract WILL have once mined
     // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
@@ -80,6 +79,23 @@ async function deployHouseGovDAO(heads, govToken, entryAmount, proposalTime, tot
     console.log('transaction mined')
 }
 
+async function initHouseDAO(address) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
+	let daoContractWithSigner = daoContract.connect(wallet)
+
+	let _tx = await daoContractWithSigner.init()
+
+    provider.once(_tx.hash, (receipt) => {
+        console.log('Transaction Minded: ' + receipt.transactionHash);
+        console.log(receipt);
+    })
+}
+
+async function getThingsHouse(address) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
+	let entry = await daoContract.entryAmount()
+	console.log(entry.toString())
+}
 // --------- deploy nfts ---------
 
 async function deployTWDomain() {
@@ -251,18 +267,31 @@ async function main() {
 	let isArtist = await isOwnerOfDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
 	console.log(isArtist)
 
-	let metadata = {
-	  "description": "A decription of the specific nft", 
-	  "external_url": "https://tokenwalk.com/nftaddress/nftid", 
-	  "image": "https://gateway.ipfs.io/ipfs/Qm...", 
-	  "name": "Name of art",
-	  "attributes": [
-	  	"original" : "false",
-	  	"edition-number" : "1",
-	  	"royalty" : "10%"
-	  ], 
-	}
-	postIPFS(metadata)
+	// let metadata = {
+	//   "description": "A decription of the specific nft", 
+	//   "external_url": "https://tokenwalk.com/nftaddress/nftid", 
+	//   "image": "https://gateway.ipfs.io/ipfs/Qm...", 
+	//   "name": "Name of art",
+	//   "attributes": [
+	//   	"original" : "false",
+	//   	"edition-number" : "1",
+	//   	"royalty" : "10%"
+	//   ], 
+	// }
+	// postIPFS(metadata)
+
+	//deployERC20(1000000, 'TW Governance', 'TWG')
+	// deployHouseGovDAO(
+	// 	[wallet.address], // head of house
+	// 	'0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', // gov token addres
+	// 	100, // min entry fee in gov tokens
+	// 	1, // number of days proposals are active
+	// 	500000, // total gov tokens supplied to contract
+	// 	10 // number of votes wieghted to pass
+	// )
+	//approve('0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//initHouseDAO('0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	getThingsHouse('0x28E70Df62f5E5bf950f286852b71911408D669b9')
 }
 
 main()
