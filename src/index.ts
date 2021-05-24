@@ -342,7 +342,12 @@ async function postIPFSmedia(data) {
 async function getIPFSmedia(cid) {
 	try {
 		let res = await client.get(cid)
-		console.log(res)
+		for await (let value of res) {
+			console.log(value)
+			// for await (let content of value.content) {
+			// 	console.log(content.toString('utf8')) // 1, then 2, then 3, then 4, then 5 (with delay between)
+			// }
+		}
 	} catch (err) {
 		console.log(err)
 	}
@@ -386,7 +391,7 @@ async function main() {
 	//postIPFSmetadata(metadata)
 	//postIPFSmedia(metadata)
 	getIPFSmetadata('QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/24.json')
-	//getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
+	getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
 
 	//deployERC20(1000000, 'TW Governance', 'TWG')
 	// deployHouseGovDAO(
