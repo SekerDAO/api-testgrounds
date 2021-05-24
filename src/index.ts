@@ -2,10 +2,8 @@ const ethers = require('ethers');
 const fs = require('fs');
 const path = require('path');
 const { create, urlSource } = require('ipfs-http-client')
-//const { create: ipfsHttpClient } = require('ipfs-http-client')
 const client = create('https://ipfs.infura.io:5001')
 
-// ERC721 with art token extension
 const artToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/ArtToken.json')));
 const TWartToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/TWdomainToken.json')));
 const houseTokenDAO = JSON.parse(fs.readFileSync(path.join(__dirname + '/HouseTokenDAO.json')));
@@ -49,12 +47,6 @@ async function approve(_signer, _provider, address, amount, dao) {
 }
 
 // --------- deploy House Gov DAO ---------
-// address[] memory heads,
-// address _governanceToken,
-// uint _entryAmount,
-// uint _proposalTime,
-// uint _totalGovernanceSupply,
-// uint _threshold
 
 async function deployHouseGovDAO(_signer, heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
     // Create an instance of a Contract Factory
@@ -237,10 +229,6 @@ async function getMetadataURI(_provider, _nftAddress, _nftId) {
 	console.log(uri)
 }
 
-async function getMetadataIPFS(IPFShash) {
-
-}
-
 async function isSigned(_provider, _nftId, _nftAddress) {
 	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 
@@ -344,10 +332,9 @@ async function getIPFSmedia(cid) {
 	try {
 		let res = await client.get(cid)
 		for await (let value of res) {
-			console.log(value)
-			// for await (let content of value.content) {
-			// 	console.log(content.toString('utf8')) // 1, then 2, then 3, then 4, then 5 (with delay between)
-			// }
+			for await (let content of value.content) {
+				// content will be a buffer of the image
+			}
 		}
 	} catch (err) {
 		console.log(err)
