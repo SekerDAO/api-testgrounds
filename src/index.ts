@@ -13,24 +13,22 @@ const govToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/GovToken.jso
 
 let provider = new ethers.providers.InfuraProvider("rinkeby", "292c366623594a44a3d5e76a68d1d9d2");
 
-let wallet = new ethers.Wallet('0x011f5d8c37def36f4bd85f8b1a8e82bf104abdaac8c0710ab70e5f86dba180cc', provider)
+let signer = new ethers.Wallet('0x011f5d8c37def36f4bd85f8b1a8e82bf104abdaac8c0710ab70e5f86dba180cc', provider)
 
 let twAddress = '0x70Fbd853bD5407043abA9885d8901554daa01c8d'
-let twContract = new ethers.Contract(twAddress, TWartToken.abi, provider)
-let twContractWithSigner = twContract.connect(wallet)
 
-async function getBalance() {
-	let balance = await wallet.getBalance();
+async function getBalance(_signer) {
+	let balance = await _signer.getBalance();
 	console.log(balance.toString())
 }
 
-async function getAddress() {
-	let address = await wallet.address;
+async function getAddress(_signer) {
+	let address = await _signer.address;
 	console.log(address)
 }
 
-async function deployERC20(totalSupply, name, symbol) {
-    let token = new ethers.ContractFactory(govToken.abi, govToken.bytecode, wallet);
+async function deployERC20(_signer, totalSupply, name, symbol) {
+    let token = new ethers.ContractFactory(govToken.abi, govToken.bytecode, _signer);
     let contract = await token.deploy(name, symbol, totalSupply);
     console.log(contract.address);
     console.log(contract.deployTransaction.hash);
@@ -38,9 +36,9 @@ async function deployERC20(totalSupply, name, symbol) {
     console.log('transaction mined')
 }
 
-async function approve(address, amount, dao) {
-	let erc20Contract = new ethers.Contract(address, govToken.abi, provider)
-	let erc20ContractWithSigner = erc20Contract.connect(wallet)
+async function approve(_signer, _provider, address, amount, dao) {
+	let erc20Contract = new ethers.Contract(address, govToken.abi, _provider)
+	let erc20ContractWithSigner = erc20Contract.connect(_signer)
 
 	let _tx = await erc20ContractWithSigner.approve(dao, amount)
 
@@ -58,9 +56,9 @@ async function approve(address, amount, dao) {
 // uint _totalGovernanceSupply,
 // uint _threshold
 
-async function deployHouseGovDAO(heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
+async function deployHouseGovDAO(_signer, heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
     // Create an instance of a Contract Factory
-    let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, wallet);
+    let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, _signer);
 
     // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
@@ -80,9 +78,9 @@ async function deployHouseGovDAO(heads, govToken, entryAmount, proposalTime, tot
     console.log('transaction mined')
 }
 
-async function initHouseDAO(address) {
-	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
-	let daoContractWithSigner = daoContract.connect(wallet)
+async function initHouseDAO(_signer, _provider, address) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, _provider)
+	let daoContractWithSigner = daoContract.connect(_signer)
 
 	let _tx = await daoContractWithSigner.init()
 
@@ -92,17 +90,17 @@ async function initHouseDAO(address) {
     })
 }
 
-async function headOfHouseEnterMember(address, contribution) {
+async function headOfHouseEnterMember(_signer, _provider, address, contribution) {
 
 }
 
-async function addMoreContribution(contribution) {
+async function addMoreContribution(_signer, _provider, contribution) {
 
 }
 
-async function fundingPropsal(address, roles, recipient, funding, proposalType) {
-	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
-	let daoContractWithSigner = daoContract.connect(wallet)
+async function fundingPropsal(_signer, _provider, address, roles, recipient, funding, proposalType) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, _provider)
+	let daoContractWithSigner = daoContract.connect(_signer)
 
 	let options = {
 		"gasLimit": 500000
@@ -116,20 +114,20 @@ async function fundingPropsal(address, roles, recipient, funding, proposalType) 
     })
 }
 
-async function joinDAOProposal(contribution, roles) {
+async function joinDAOProposal(_signer, _provider, contribution, roles) {
 
 }
 
-async function withdraw(amount) {
+async function withdraw(_signer, _provider, amount) {
 
 }
 
-async function sendNFT(address, id) {
+async function sendNFT(_signer, _provider, address, id) {
 
 }
 
-async function getThingsHouse(address) {
-	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
+async function getThingsHouse(_provider, address) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, _provider)
 	let entry = await daoContract.entryAmount()
 	console.log(entry.toString())
 	// let member = await daoContract.members(wallet.address)
@@ -163,9 +161,9 @@ async function getThingsHouse(address) {
 
 // --------- deploy nfts ---------
 
-async function deployTWDomain() {
+async function deployTWDomain(_signer) {
     // Create an instance of a Contract Factory
-    let factory = new ethers.ContractFactory(TWartToken.abi, TWartToken.bytecode, wallet);
+    let factory = new ethers.ContractFactory(TWartToken.abi, TWartToken.bytecode, _signer);
 
     // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await factory.deploy("Walk", "TWD");
@@ -185,9 +183,9 @@ async function deployTWDomain() {
     console.log('transaction mined')
 }
 
-async function deployCustomDomain(name, symbol) {
+async function deployCustomDomain(_signer, name, symbol) {
     // Create an instance of a Contract Factory
-    let factory = new ethers.ContractFactory(artToken.abi, artToken.bytecode, wallet);
+    let factory = new ethers.ContractFactory(artToken.abi, artToken.bytecode, _signer);
 
     // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await factory.deploy(name, symbol);
@@ -209,9 +207,9 @@ async function deployCustomDomain(name, symbol) {
 
 // --------- create nfts ---------
 
-async function createNFTCustomDomain(_nftAddress, _uri, _numberOfEditions) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
-	let nftContractWithSigner = nftContract.connect(wallet)
+async function createNFTCustomDomain(_signer, _provider, _nftAddress, _uri, _numberOfEditions) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
+	let nftContractWithSigner = nftContract.connect(_signer)
 	let _tx = await nftContractWithSigner.mintEdition(_uri, _numberOfEditions)
 
     provider.once(_tx.hash, (receipt) => {
@@ -220,7 +218,9 @@ async function createNFTCustomDomain(_nftAddress, _uri, _numberOfEditions) {
     })
 }
 
-async function createWithNFTTWDomain(uri, numberOfEditions) {
+async function createWithNFTTWDomain(_signer, _provider, uri, numberOfEditions) {
+	let twContract = new ethers.Contract(twAddress, TWartToken.abi, _provider)
+	let twContractWithSigner = twContract.connect(_signer)
 	let _tx = await twContractWithSigner.mintEdition(uri, numberOfEditions)
 
     provider.once(_tx.hash, (receipt) => {
@@ -231,8 +231,8 @@ async function createWithNFTTWDomain(uri, numberOfEditions) {
 
 // --------- utility functions ---------
 
-async function getMetadataURI(_nftAddress, _nftId) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+async function getMetadataURI(_provider, _nftAddress, _nftId) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 	let uri = await nftContract.tokenURI(_nftId)
 	console.log(uri)
 }
@@ -241,8 +241,8 @@ async function getMetadataIPFS(IPFShash) {
 
 }
 
-async function isSigned(_nftId, _nftAddress) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+async function isSigned(_provider, _nftId, _nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 
 	try {
 		let signature = await nftContract.getSignature(_nftId)
@@ -254,9 +254,10 @@ async function isSigned(_nftId, _nftAddress) {
 	}
 }
 
-async function getSignature(_nftId) {
+async function getSignature(_provider, _nftAddress, _nftId) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 	try {
-		let signature = await twContractWithSigner.getSignature(_nftId)
+		let signature = await nftContract.getSignature(_nftId)
 		//console.log(signature)
 		return signature
 	} catch(err) {
@@ -265,8 +266,8 @@ async function getSignature(_nftId) {
 	}
 }
 
-async function isSignableNFT(_nftAddress) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+async function isSignableNFT(_provider, _nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 
 	try {
 		let signature = await nftContract.getSignature(1)
@@ -300,10 +301,10 @@ async function storeSignature() {
 
 }
 
-async function isOwnerOfDomain(_nftAddress) {
-	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
+async function isOwnerOfDomain(_signer, _provider, _nftAddress) {
+	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 	let isArtist = await nftContract.artist()
-	return isArtist == wallet.address
+	return isArtist == _signer.address
 }
 
 // --------- ipfs ---------
@@ -355,21 +356,21 @@ async function getIPFSmedia(cid) {
 // --------- tests ---------
 
 async function main() {
-	getBalance()
-	getAddress()
-	//deployTWDomain()
-	//deployCustomDomain('Nathan', 'NTG')
-	//createNFTCustomDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
-	//createWithNFTTWDomain('https://gateway.ipfs.io/ipfs/QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/', 1)
-	//getMetadataURI('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
-	getMetadataURI('0x70Fbd853bD5407043abA9885d8901554daa01c8d', 24)
+	getBalance(signer)
+	getAddress(signer)
+	//deployTWDomain(signer)
+	//deployCustomDomain(signer, 'Nathan', 'NTG')
+	//createNFTCustomDomain(signer, provider, '0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
+	//createWithNFTTWDomain(signer, provider, 'https://gateway.ipfs.io/ipfs/QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/', 1)
+	//getMetadataURI(provider, '0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
+	getMetadataURI(provider, '0x70Fbd853bD5407043abA9885d8901554daa01c8d', 24)
 	//let isOwner = await checkOwnership(provider, '0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
 	// console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
-	// let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
+	// let signed = await isSigned(provider, 1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
 	// console.log('TokenId 1 is signed: ' + signed)
-	// let test = await isSignableNFT('0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
+	// let test = await isSignableNFT(provider, '0x58dd43b4991bfaf5a7e838766a4595262136f7fb')
 	// console.log('this nft is signable: ' + test)
-	let isArtist = await isOwnerOfDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
+	let isArtist = await isOwnerOfDomain(signer, provider, '0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D')
 	console.log(isArtist)
 
 	// let metadata = {
@@ -393,7 +394,7 @@ async function main() {
 	getIPFSmetadata('QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/24.json')
 	getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
 
-	//deployERC20(1000000, 'TW Governance', 'TWG')
+	//deployERC20(signer, 1000000, 'TW Governance', 'TWG')
 	// deployHouseGovDAO(
 	// 	[wallet.address], // head of house
 	// 	'0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', // gov token addres
@@ -402,9 +403,9 @@ async function main() {
 	// 	500000, // total gov tokens supplied to contract
 	// 	10 // number of votes wieghted to pass
 	// )
-	//approve('0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	//initHouseDAO('0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	//getThingsHouse('0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//approve(signer, provider, '0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//initHouseDAO(signer, provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//getThingsHouse(provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	// let roles = {
 	// 	'headOfHouse': true,
 	// 	'member': true
@@ -417,6 +418,7 @@ async function main() {
 	// 	0
 	// )
 }
+
 // {
 // "name":"INCENDIES",
 // "description":"INCENDIES depicts our hero as they set their gaze on the fiery dusk of Planet NC-137. \nWhat awaits them as the darkness of night approaches?",
