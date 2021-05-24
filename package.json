@@ -19,6 +19,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "ethers": "^5.1.4",
-    "ipfs-http-client": "^50.0.0"
+    "ipfs-http-client": "^50.0.0",
+    "js-ipfs": "0.0.301"
   }
 }

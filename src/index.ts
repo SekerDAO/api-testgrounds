@@ -2,6 +2,7 @@ const ethers = require('ethers');
 const fs = require('fs');
 const path = require('path');
 const { create, urlSource } = require('ipfs-http-client')
+//const { create: ipfsHttpClient } = require('ipfs-http-client')
 const client = create('https://ipfs.infura.io:5001')
 
 // ERC721 with art token extension
@@ -230,10 +231,14 @@ async function createWithNFTTWDomain(uri, numberOfEditions) {
 
 // --------- utility functions ---------
 
-async function getMetadata(_nftAddress, _nftId) {
+async function getMetadataURI(_nftAddress, _nftId) {
 	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, provider)
 	let uri = await nftContract.tokenURI(_nftId)
 	console.log(uri)
+}
+
+async function getMetadataIPFS(IPFShash) {
+
 }
 
 async function isSigned(_nftId, _nftAddress) {
@@ -303,7 +308,16 @@ async function isOwnerOfDomain(_nftAddress) {
 
 // --------- ipfs ---------
 
-async function postIPFS(data) {
+async function postIPFSmetadata(data) {
+	try {
+		let res = await client.add(JSON.stringify(data))
+		console.log(res)
+	} catch (err) {
+		console.log(err)
+	}
+}
+
+async function postIPFSmedia(data) {
 	try {
 		let res = await client.add(JSON.stringify(data))
 		console.log(res)
@@ -320,9 +334,10 @@ async function main() {
 	//deployTWDomain()
 	//deployCustomDomain('Nathan', 'NTG')
 	//createNFTCustomDomain('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
-	//createWithNFTTWDomain('https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
-	getMetadata('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
-	let isOwner = await checkOwnership(provider, '0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
+	//createWithNFTTWDomain('https://gateway.ipfs.io/ipfs/QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/', 1)
+	//getMetadataURI('0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
+	getMetadataURI('0x70Fbd853bD5407043abA9885d8901554daa01c8d', 24)
+	//let isOwner = await checkOwnership(provider, '0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
 	// console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
 	// let signed = await isSigned(1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
 	// console.log('TokenId 1 is signed: ' + signed)
@@ -332,17 +347,23 @@ async function main() {
 	console.log(isArtist)
 
 	// let metadata = {
-	//   "description": "A decription of the specific nft", 
-	//   "external_url": "https://tokenwalk.com/nftaddress/nftid", 
-	//   "image": "https://gateway.ipfs.io/ipfs/Qm...", 
-	//   "name": "Name of art",
-	//   "attributes": [
-	//   	"original" : "false",
-	//   	"edition-number" : "1",
-	//   	"royalty" : "10%"
-	//   ], 
+	// 	"name": "Test NFT",
+	// 	"description": "A decription of the specific nft", 
+	// 	"external_url": "https://tokenwalk.com/nftaddress/nftid", 
+	// 	"image": "https://ipfs.io/ipfs/Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD",
+	// 	"media":{
+	// 		"uri":"https://ipfs.io/ipfs/Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD",
+	// 		"dimensions":"2188x2500","size":"22142080","mimeType":"video/mp4"
+	// 	},
+	// 	"name": "Name of art",
+	// 	"attributes": {
+	// 		"original" : "false",
+	// 		"edition-number" : "1",
+	// 		"royalty" : "10%"
+	// 	} 
 	// }
-	// postIPFS(metadata)
+	//postIPFSmetadata(metadata)
+	//postIPFSmedia(metadata)
 
 	//deployERC20(1000000, 'TW Governance', 'TWG')
 	// deployHouseGovDAO(
@@ -356,18 +377,46 @@ async function main() {
 	//approve('0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	//initHouseDAO('0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	//getThingsHouse('0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	let roles = {
-		'headOfHouse': true,
-		'member': true
-	}
-	fundingPropsal(
-		'0x28E70Df62f5E5bf950f286852b71911408D669b9',
-		roles,
-		'0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D',
-		20,
-		0
-	)
+	// let roles = {
+	// 	'headOfHouse': true,
+	// 	'member': true
+	// }
+	// fundingPropsal(
+	// 	'0x28E70Df62f5E5bf950f286852b71911408D669b9',
+	// 	roles,
+	// 	'0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D',
+	// 	20,
+	// 	0
+	// )
 }
+// {
+// "name":"INCENDIES",
+// "description":"INCENDIES depicts our hero as they set their gaze on the fiery dusk of Planet NC-137. \nWhat awaits them as the darkness of night approaches?",
+// "attributes":
+// {
+// 	"artist":"davidalabo",
+// 	"scarcity":"ultrarare",
+// 	"tags":
+// 	["visual","african","black","surreal","surrealism","trippy","psychedelic","desert","landscape","sci-fi","contemporary","visionary art","dali","gradient","colour","color","colors","art","beautiful","vibrant","minimalist","emerging","mountain","illustration","mountains"],
+// 	"asset_type":"image/jpeg",
+// 	"asset_size_in_bytes":46677427
+// },
+// "external_uri":"https://knownorigin.io/0xcf615a332888ab78a529bcb60d4de02a45eddbcf",
+// "image":"https://ipfs.infura.io/ipfs/QmafyTqm9y6Wvg9L8mQbrK6yzaMrJuecffDsoJSCV8GkNd/asset.jpeg",
+// "artist":"0xcf615a332888ab78a529bcb60d4de02a45eddbcf"
+// }
+
+// {
+// 	"name":"Climax",
+// 	"createdBy":"Jason Ebeyer",
+// 	"yearCreated":"2020",
+// 	"description":"Climax, 2020 /\nOriginal audio by the\nartist.\nThis is the final artwork I will be tokenizing for 2020.",
+// 	"image":"https://ipfs.pixura.io/ipfs/QmZypyoMVJ9JVR13236MtsJGs3rCUA7hYhmuhEzuFCdAGH/ezgif-4-bf3426aef3bd.gif",
+// 	"media":{
+// 		"uri":"https://ipfs.pixura.io/ipfs/QmNZ3XMiLR9sArTqiSQEWTcmfR83QLJbfTXYBXTF5wyChR/Emerge.mp4",
+// 		"dimensions":"2188x2500","size":"22142080","mimeType":"video/mp4"
+// 	},
+// 	"tags":["jasonebeyer","3dart","3Dart","animation","erotic","surreal","dreamy"]}
 
 main()
 
