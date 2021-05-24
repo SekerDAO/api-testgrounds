@@ -49,7 +49,7 @@ async function approve(address, amount, dao) {
     })
 }
 
-// --------- deploy DAOS ---------
+// --------- deploy House Gov DAO ---------
 // address[] memory heads,
 // address _governanceToken,
 // uint _entryAmount,
@@ -91,11 +91,75 @@ async function initHouseDAO(address) {
     })
 }
 
+async function headOfHouseEnterMember(address, contribution) {
+
+}
+
+async function addMoreContribution(contribution) {
+
+}
+
+async function fundingPropsal(address, roles, recipient, funding, proposalType) {
+	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
+	let daoContractWithSigner = daoContract.connect(wallet)
+
+	let options = {
+		"gasLimit": 500000
+	}
+
+	let _tx = await daoContractWithSigner.submitProposal(roles, recipient, funding, proposalType, options)
+
+    provider.once(_tx.hash, (receipt) => {
+        console.log('Transaction Minded: ' + receipt.transactionHash);
+        console.log(receipt);
+    })
+}
+
+async function joinDAOProposal(contribution, roles) {
+
+}
+
+async function withdraw(amount) {
+
+}
+
+async function sendNFT(address, id) {
+
+}
+
 async function getThingsHouse(address) {
 	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, provider)
 	let entry = await daoContract.entryAmount()
 	console.log(entry.toString())
+	// let member = await daoContract.members(wallet.address)
+	// console.log(member)
+	let proposal = await daoContract.proposals(1)
+	console.log(proposal)
+	let threshold = await daoContract.threshold()
+	console.log(threshold)
+	// // use shares on member struct for balances
+	// uint public totalProposalCount = 0;
+	// uint public proposalTime;
+	// uint public gracePeriod = 3 days;
+
+	// uint public totalContribution;
+	// uint public balance;
+
+	// uint public threshold;
+	// uint public entryAmount;
+	// uint public totalGovernanceSupply;
+	// uint public remainingSupply;
+	// // address private initialCoordinator;
+
+	// address public governanceToken;
 }
+
+// --------- house nft dao ---------
+
+// --------- house msig dao ---------
+
+// --------- gallery dao ---------
+
 // --------- deploy nfts ---------
 
 async function deployTWDomain() {
@@ -291,7 +355,18 @@ async function main() {
 	// )
 	//approve('0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	//initHouseDAO('0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	getThingsHouse('0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//getThingsHouse('0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	let roles = {
+		'headOfHouse': true,
+		'member': true
+	}
+	fundingPropsal(
+		'0x28E70Df62f5E5bf950f286852b71911408D669b9',
+		roles,
+		'0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D',
+		20,
+		0
+	)
 }
 
 main()
