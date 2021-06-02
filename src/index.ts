@@ -8,6 +8,7 @@ const artToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/ArtToken.jso
 const TWartToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/TWdomainToken.json')));
 const houseTokenDAO = JSON.parse(fs.readFileSync(path.join(__dirname + '/HouseTokenDAO.json')));
 const govToken = JSON.parse(fs.readFileSync(path.join(__dirname + '/GovToken.json')));
+const weth = JSON.parse(fs.readFileSync(path.join(__dirname + '/WETH9.json')));
 
 let provider = new ethers.providers.InfuraProvider("rinkeby", "292c366623594a44a3d5e76a68d1d9d2");
 
@@ -53,18 +54,29 @@ async function approve(_signer, _provider, address, amount, dao) {
 
 // --------- deploy House Gov DAO ---------
 
-async function deployWeth() {
-    let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, _signer);
-    let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
+async function deployWeth(_signer) {
+    let _weth = new ethers.ContractFactory(weth.abi, weth.bytecode, _signer);
+    let contract = await _weth.deploy();
     console.log(contract.address);
     console.log(contract.deployTransaction.hash);
     await contract.deployed()
     console.log('transaction mined')
 }
 
-async function deployHouseGovDAO(_signer, heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
+async function deployHouseGovDAO(
+	_signer,
+	heads,
+	govToken,
+	entryAmount,
+	proposalTime,
+	daoSupply,
+	threshold,
+    minimumProposalAmount,
+    entryReward,
+    weth
+) {
     let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, _signer);
-    let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
+    let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, daoSupply, threshold, minimumProposalAmount, entryReward, weth);
     console.log(contract.address);
     console.log(contract.deployTransaction.hash);
     await contract.deployed()
@@ -124,31 +136,38 @@ async function sendNFT(_signer, _provider, address, id) {
 
 }
 
-async function getThingsHouse(_provider, address) {
+async function gettersHouseGov(_provider, address) {
 	let daoContract = new ethers.Contract(address, houseTokenDAO.abi, _provider)
 	let entry = await daoContract.entryAmount()
-	console.log(entry.toString())
+	console.log('entry amount: ' + entry.toString())
 	// let member = await daoContract.members(wallet.address)
 	// console.log(member)
 	let proposal = await daoContract.proposals(1)
 	console.log(proposal)
 	let threshold = await daoContract.threshold()
-	console.log(threshold)
-	// // use shares on member struct for balances
-	// uint public totalProposalCount = 0;
-	// uint public proposalTime;
-	// uint public gracePeriod = 3 days;
-
-	// uint public totalContribution;
-	// uint public balance;
-
-	// uint public threshold;
-	// uint public entryAmount;
-	// uint public totalGovernanceSupply;
-	// uint public remainingSupply;
-	// // address private initialCoordinator;
-
-	// address public governanceToken;
+	console.log('vote threshold: ' + threshold.toString())
+    let totalProposalCount = await daoContract.totalProposalCount()
+    console.log('proposal count: ' + totalProposalCount)
+    let memberCount = await daoContract.memberCount()
+    console.log('member count: ' + memberCount)
+    let proposalTime = await daoContract.proposalTime()
+    console.log('proposal max time: ' + proposalTime)
+    let gracePeriod = await daoContract.gracePeriod()
+    console.log('grace period: ' + gracePeriod)
+    let totalContribution = await daoContract.totalContribution()
+    console.log('total contribution: ' + totalContribution)
+    let balance = await daoContract.balance()
+    console.log('dao balance: ' + balance)
+    let minimumProposalAmount = await daoContract.minimumProposalAmount()
+    console.log('minimum gov tokens for proposal: ' + minimumProposalAmount)
+    let totalGovernanceSupply = await daoContract.totalGovernanceSupply()
+    console.log('total governance supply: ' + totalGovernanceSupply)
+    let remainingSupply = await daoContract.remainingSupply()
+    console.log('remaining gov token supply: ' + remainingSupply)
+    let entryReward = await daoContract.entryReward()
+    console.log('entry gov token reward: ' + entryReward)
+    // address public governanceToken;
+    // address public WETH = address(0);
 }
 
 
@@ -363,19 +382,24 @@ async function main() {
 	getIPFSmetadata('QmZ5GKfE2SqgFfo3yGyqybDfsoh1JzXQuPsaWqqrZLC1z2')
 	getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
 
-	deployERC20(signer, 1000000, 'TW Governance', 'TWG')
+	//deployERC20(signer, 1000000, 'TW Governance', 'TWG')
+	//deployWeth(signer)
 	// deployHouseGovDAO(
-	// 	[wallet.address], // head of house
+	// 	signer,
+	// 	[signer.address], // head of house
 	// 	'0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', // gov token addres
 	// 	100, // min entry fee in gov tokens
 	// 	1, // number of days proposals are active
-	// 	500000, // total gov tokens supplied to contract
-	// 	10 // number of votes wieghted to pass
+	// 	100, // total gov tokens supplied to contract
+	// 	10, // number of votes wieghted to pass
+	// 	0, // minimum tokens owned to create proposal
+	// 	0, // reward of gov tokens when becmoing a member
+	// 	'0x83b89e0995c2c96216da14b9f9ae6e6b20c1ae89' // weth address
 	// )
 
-	//approve(signer, provider, '0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	//initHouseDAO(signer, provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
-	//getThingsHouse(provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
+	//approve(signer, provider, '0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 100, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
+	//initHouseDAO(signer, provider, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
+	gettersHouseGov(provider, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
 	// let roles = {
 	// 	'headOfHouse': true,
 	// 	'member': true
