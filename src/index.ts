@@ -48,24 +48,20 @@ async function approve(_signer, _provider, address, amount, dao) {
 
 // --------- deploy House Gov DAO ---------
 
-async function deployHouseGovDAO(_signer, heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
-    // Create an instance of a Contract Factory
+async function deployWeth() {
     let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, _signer);
-
-    // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
-
-    // The address the Contract WILL have once mined
-    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
     console.log(contract.address);
-    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
-
-    // The transaction that was sent to the network to deploy the Contract
-    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
     console.log(contract.deployTransaction.hash);
-    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
+    await contract.deployed()
+    console.log('transaction mined')
+}
 
-    // The contract is NOT deployed yet; we must wait until it is mined
+async function deployHouseGovDAO(_signer, heads, govToken, entryAmount, proposalTime, totalSupply, threshold) {
+    let dao = new ethers.ContractFactory(houseTokenDAO.abi, houseTokenDAO.bytecode, _signer);
+    let contract = await dao.deploy(heads, govToken, entryAmount, proposalTime, totalSupply, threshold);
+    console.log(contract.address);
+    console.log(contract.deployTransaction.hash);
     await contract.deployed()
     console.log('transaction mined')
 }
@@ -82,9 +78,6 @@ async function initHouseDAO(_signer, _provider, address) {
     })
 }
 
-async function headOfHouseEnterMember(_signer, _provider, address, contribution) {
-
-}
 
 async function addMoreContribution(_signer, _provider, contribution) {
 
@@ -107,6 +100,14 @@ async function fundingPropsal(_signer, _provider, address, roles, recipient, fun
 }
 
 async function joinDAOProposal(_signer, _provider, contribution, roles) {
+
+}
+
+async function headOfHouseEnterMember() {
+	
+}
+
+async function vote() {
 
 }
 
@@ -145,6 +146,7 @@ async function getThingsHouse(_provider, address) {
 	// address public governanceToken;
 }
 
+
 // --------- house nft dao ---------
 
 // --------- house msig dao ---------
@@ -154,45 +156,19 @@ async function getThingsHouse(_provider, address) {
 // --------- deploy nfts ---------
 
 async function deployTWDomain(_signer) {
-    // Create an instance of a Contract Factory
     let factory = new ethers.ContractFactory(TWartToken.abi, TWartToken.bytecode, _signer);
-
-    // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await factory.deploy("Walk", "TWD");
-
-    // The address the Contract WILL have once mined
-    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
     console.log(contract.address);
-    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
-
-    // The transaction that was sent to the network to deploy the Contract
-    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
     console.log(contract.deployTransaction.hash);
-    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
-
-    // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
     console.log('transaction mined')
 }
 
 async function deployCustomDomain(_signer, name, symbol) {
-    // Create an instance of a Contract Factory
     let factory = new ethers.ContractFactory(artToken.abi, artToken.bytecode, _signer);
-
-    // Notice we pass in "Hello World" as the parameter to the constructor
     let contract = await factory.deploy(name, symbol);
-
-    // The address the Contract WILL have once mined
-    // See: https://ropsten.etherscan.io/address/0x2bd9aaa2953f988153c8629926d22a6a5f69b14e
     console.log(contract.address);
-    // "0x2bD9aAa2953F988153c8629926D22A6a5F69b14E"
-
-    // The transaction that was sent to the network to deploy the Contract
-    // See: https://ropsten.etherscan.io/tx/0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51
     console.log(contract.deployTransaction.hash);
-    // "0x159b76843662a15bd67e482dcfbee55e8e44efad26c5a614245e12a00d4b1a51"
-
-    // The contract is NOT deployed yet; we must wait until it is mined
     await contract.deployed()
     console.log('transaction mined')
 }
@@ -227,6 +203,7 @@ async function getMetadataURI(_provider, _nftAddress, _nftId) {
 	let nftContract = new ethers.Contract(_nftAddress, artToken.abi, _provider)
 	let uri = await nftContract.tokenURI(_nftId)
 	console.log(uri)
+	return uri
 }
 
 async function isSigned(_provider, _nftId, _nftAddress) {
@@ -350,7 +327,7 @@ async function main() {
 	//createNFTCustomDomain(signer, provider, '0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 'https://gateway.ipfs.io/ipfs/QmUEmPcSXxyQa8HFmU2A3vRQN6HbeqiYGmv29srB7FZkVq/metadata', 10)
 	//createWithNFTTWDomain(signer, provider, 'https://gateway.ipfs.io/ipfs/QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/', 1)
 	//getMetadataURI(provider, '0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D', 7)
-	getMetadataURI(provider, '0x70Fbd853bD5407043abA9885d8901554daa01c8d', 24)
+	let hash = await getMetadataURI(provider, '0xa5676205dBd9ffa11038eB4661f785942E7701D5', 2)
 	//let isOwner = await checkOwnership(provider, '0x1b4deF26044A75A26B808B4824E502Ab764c5027', '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D', 7)
 	// console.log('0x1b4deF26044A75A26B808B4824E502Ab764c5027 owns Id 7: ' + isOwner)
 	// let signed = await isSigned(provider, 1, '0xb4e4ad7b0A1dCF480592FcC8B0E008FBdE45e03D')
@@ -378,10 +355,10 @@ async function main() {
 	// }
 	//postIPFSmetadata(metadata)
 	//postIPFSmedia(metadata)
-	getIPFSmetadata('QmZuwWhEGkUKZgC2GzNrfCRKcrKbxYxskjSnTgpMQY9Dy2/metadata/24.json')
+	getIPFSmetadata('QmZ5GKfE2SqgFfo3yGyqybDfsoh1JzXQuPsaWqqrZLC1z2')
 	getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
 
-	//deployERC20(signer, 1000000, 'TW Governance', 'TWG')
+	deployERC20(signer, 1000000, 'TW Governance', 'TWG')
 	// deployHouseGovDAO(
 	// 	[wallet.address], // head of house
 	// 	'0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', // gov token addres
@@ -390,6 +367,7 @@ async function main() {
 	// 	500000, // total gov tokens supplied to contract
 	// 	10 // number of votes wieghted to pass
 	// )
+
 	//approve(signer, provider, '0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 500000, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	//initHouseDAO(signer, provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
 	//getThingsHouse(provider, '0x28E70Df62f5E5bf950f286852b71911408D669b9')
