@@ -26,10 +26,10 @@ async function getAddress(_signer) {
 }
 
 async function deployERC20(_signer, totalSupply, name, symbol) {
-	// convert _totalSupply to 18 decimals
-	let _ONE = ethers.BigNumber.from('1000000000000000000')
-	let _totalSupply = ethers.BigNumber.from(totalSupply)
-	let _totalSupply18Decimals = _totalSupply.mul(_ONE)
+    // convert _totalSupply to 18 decimals
+    let _ONE = ethers.BigNumber.from('1000000000000000000')
+    let _totalSupply = ethers.BigNumber.from(totalSupply)
+    let _totalSupply18Decimals = _totalSupply.mul(_ONE)
 
     let token = new ethers.ContractFactory(govToken.abi, govToken.bytecode, _signer);
     let contract = await token.deploy(name, symbol, totalSupply);
