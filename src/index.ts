@@ -113,7 +113,14 @@ async function fundingPropsal(_signer, _provider, address, roles, recipient, fun
     provider.once(_tx.hash, (receipt) => {
         console.log('Transaction Minded: ' + receipt.transactionHash);
         console.log(receipt);
+		// var event = daoContract.ProposalCreated(function(error, result) {
+		//    if (!error)console.log(result);
+		// });
     })
+    daoContract.once('ProposalCreated', function(error, event){ console.log(event.args.number.toString()); });
+	// var event = daoContract.ProposalCreated(function(error, result) {
+	//    if (!error)console.log(result);
+	// });
 }
 
 async function joinDAOProposal(_signer, _provider, contribution, roles) {
@@ -382,35 +389,37 @@ async function main() {
 	getIPFSmetadata('QmZ5GKfE2SqgFfo3yGyqybDfsoh1JzXQuPsaWqqrZLC1z2')
 	getIPFSmedia('Qmej3G9ygDzjawBJtx3yh3WBCgZZAB8Vr9xnyAeHsmUrzD')
 
-	//deployERC20(signer, 1000000, 'TW Governance', 'TWG')
+	//deployERC20(signer, ethers.BigNumber.from('10000000000000000000000000'), 'TW Governance', 'TWG')
 	//deployWeth(signer)
 	// deployHouseGovDAO(
 	// 	signer,
 	// 	[signer.address], // head of house
-	// 	'0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', // gov token addres
-	// 	100, // min entry fee in gov tokens
+	// 	'0xB0E6d5A58E7b959492647CB32b62C449F4139EFC', // gov token addres
+	// 	0, // min entry fee in gov tokens
 	// 	1, // number of days proposals are active
-	// 	100, // total gov tokens supplied to contract
+	// 	ethers.BigNumber.from('5000000000000000000000000'), // total gov tokens supplied to contract
 	// 	10, // number of votes wieghted to pass
 	// 	0, // minimum tokens owned to create proposal
 	// 	0, // reward of gov tokens when becmoing a member
 	// 	'0x83b89e0995c2c96216da14b9f9ae6e6b20c1ae89' // weth address
 	// )
 
-	//approve(signer, provider, '0xD53d734D5fa5202547Dbe51219E7fC024D4e8472', 100, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
-	//initHouseDAO(signer, provider, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
-	gettersHouseGov(provider, '0xd34604607AE575707b62b0F467D012233A6cd5f0')
-	// let roles = {
-	// 	'headOfHouse': true,
-	// 	'member': true
-	// }
-	// fundingPropsal(
-	// 	'0x28E70Df62f5E5bf950f286852b71911408D669b9',
-	// 	roles,
-	// 	'0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D',
-	// 	20,
-	// 	0
-	// )
+	//approve(signer, provider, '0xB0E6d5A58E7b959492647CB32b62C449F4139EFC', ethers.BigNumber.from('5000000000000000000000000'), '0x7977de766D174cE17230fa35169021d6cF926732')
+	//initHouseDAO(signer, provider, '0x7977de766D174cE17230fa35169021d6cF926732')
+	//gettersHouseGov(provider, '0x7977de766D174cE17230fa35169021d6cF926732')
+	let roles = {
+		'headOfHouse': false,
+		'member': false
+	}
+	fundingPropsal(
+		signer,
+		provider,
+		'0x7977de766D174cE17230fa35169021d6cF926732',
+		0,
+		'0xd814af0897BAedB22D8Bb0cF6d44609a22a5934D',
+		0,
+		0
+	)
 }
 
 // {
